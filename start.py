@@ -5,7 +5,7 @@ from threading import Thread
 import urllib
 import re
 
-q = Queue(0) #  it looks like concurent object, no locking is necessary, but I might be wrong, instantiated with 0 wich means infinity
+q = Queue(0) #  it looks like concurent object, no locking is necessary, but I might be wrong, instantiated with 0 which means infinity
 
 
 class ProducerThread(Thread):
@@ -15,12 +15,13 @@ class ProducerThread(Thread):
         try:
             file = open('newfile.txt', 'r')
             uris = file.readlines()
-        except Exception as ex:  #  I dont know how to determine what kind of exception may happen, 1st link in file is intentionally wrong
+        except Exception as ex:  #  I dont know how to determine what kind of exception may happen, 1st link in file is intentionally wrong just to catch the exception
             print("something went wrong with the file")
-            #  dont know how to terminate the process/thread here
+            #  dont know how to terminate the process/thread here, no sense to continue when there is no link loaded from file!!!
             pass
 
-        self.in_parallel(self.enqueue, uris)  # it will start as many processes as many the links in the list, which is not ok by my opinion, there should be predefined amount of possible threads
+        # if process was not trerminated then we will continue
+        self.in_parallel(self.enqueue, uris)  # it will start as many processes as many the links in the list, which is not ok by my opinion, there should be predefined amount of possible threads, wwe should work with threads smartly
 
     # I don't know ho to make this method kind of private for better encapsulation
     def in_parallel(self, fn, l):
@@ -30,7 +31,7 @@ class ProducerThread(Thread):
     def enqueue(self, url):
         try:
             link = self.process(url)
-            global q  # don't know what this is for?
+            #global q  # don't know what this is for? it works without that
             q.put(link)
             print('produced')
         except Exception as ex:  # don't know how to work with exceptions properly in python
@@ -38,11 +39,11 @@ class ProducerThread(Thread):
             pass
 
     def process(self, url):
-        req = urllib.request.Request(url)  # it looks like when the link would not be parsed because of the format of an hypelink, then error is thrown
+        req = urllib.request.Request(url)  # it looks like when the link would not be parsed because of the wrong format of an hypelink, then error is thrown
         with urllib.request.urlopen(req) as response:
 
             '''if response.status_code == 200:
-                print('OK')'''  # does not work, don't know why, I would treat issues based on status codes otherwise
+                print('OK')'''  # does not work, don't know why, I would treat some kind of issues based on status codes otherwise
             the_page = response.read() #  it returns object, I don't know how to select only markup from that object in python
             return the_page
 
@@ -53,18 +54,18 @@ class ConsumerThread(Thread):
         self.dequeue()
 
     def dequeue(self):
-        global q
+        # global q  # don't know what this is for? it works without that
         while True:
-            time.sleep(2)  # just to prove is asynchronous, you can remove it
+            time.sleep(2)  # just to prove it runs concurently, you can remove it
             the_page = q.get()
             links = self.processlinks(the_page)
             print(links)
             print('consumed')
 
     def processlinks(self, page):
-        a = page.decode(encoding='UTF-8')  # don't know how to extract only markup from that object
+        a = page.decode(encoding='UTF-8')  # don't know how to extract only markup from that object, how to do it properly - there is also some 'http' string
         # q.task_done() only exist in different version of the library
-        links = re.findall('"((http|ftp)s?://.*?)"', a)  # it searches for hyperlinks
+        links = re.findall('"((http|ftp)s?://.*?)"', a)  # it searches for hyperlinks by using regexp
         return links
 
 

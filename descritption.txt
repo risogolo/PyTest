@@ -1,0 +1,6 @@
+Hi there is a bunch of things that I would do differently in c# or I don't know how to do it properly in Python, or better to say in dynamic language
+
+1. for example I might would change the location of methods like enqueue and dequeue into a separate classes from SOLID principles point of view
+2. I don't know why test are executed with main program in start.py, why they are not executed separately in something like testrunner, I have read something about testsuites, maybe that's the thing, I'm using Pycharm
+3. So far I'dont know how to find out "properties" or attributes in here for example: response.read() it returns object but I'd like to get only markup, and I don't know how to do it, same thing in 2nd unit test
+4. I don't know to write more unit tests because I don't know the methods which python libraries provides, for example: how to check for null or someting like that, etc...
